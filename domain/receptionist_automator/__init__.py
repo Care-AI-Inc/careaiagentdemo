@@ -63,6 +63,8 @@ def poll_and_process_message(config: Config):
                                 # print(extract_content)
                                 if extract_content:
                                     medical_report = extract_and_summarize_medical_report(extract_content)
+                                    if not medical_report.is_document_medical_report:
+                                        logging.warn("Looks like report does not contain medical information, skipping it")
                                     doctor_data = get_doctor_data()
                                     doctor_ids = normalize_and_find_matching_name_ids(get_doctor_data(),
                                                                                       medical_report.doctor_first_name,

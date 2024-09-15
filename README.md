@@ -19,7 +19,7 @@ This README provides details about the assumptions, trade-offs, design decisions
 ## Trade-offs and Design Decisions
 
 1. **Document Parsing with LlamaParse**:
-   - **Choice**: We chose [LlamaParse](https://www.llamaparse.com) for its ability to handle complex PDFs with tables and charts, which are common in medical reports.
+   - **Choice**: We chose [LlamaParse](https://docs.llamaindex.ai/en/stable/llama_cloud/llama_parse/) for its ability to handle complex PDFs with tables and charts, which are common in medical reports.
    - **Integration**: LlamaParse integrates with LlamaIndex, enhancing retrieval and context augmentation.
    - **Alternatives Considered**: Other tools like PDFMiner.six, PyPDF, and OCR tools (e.g., Pytesseract) were considered. However, these tools either lack the ability to handle complex document structures or require more resources for comprehensive parsing.
    - **Trade-off**: While LlamaParse is powerful, it may be more resource-intensive than simpler parsing tools. However, its integration with LlamaIndex and support for multiple file types make it suitable for our needs.
