@@ -60,7 +60,7 @@ def poll_and_process_message(config: Config):
                                     f.write(part.get_payload(decode=True))
                                 logging.info(f'Saved attachment: {filepath}')
                                 extract_content = extract_from_document(filepath)
-                                # print(extract_content)
+                                print(extract_content)
                                 if extract_content:
                                     medical_report = extract_and_summarize_medical_report(extract_content)
                                     if not medical_report.is_document_medical_report:

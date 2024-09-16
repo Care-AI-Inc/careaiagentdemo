@@ -11,23 +11,23 @@ client = OpenAI(api_key=OPEN_API_KEY)
 
 EXTRACT_EMAIL_PROMPT = """
 Process the document and identify it is medical report document and if not return bottom JSON with  is_document_medical_report as false and don't process remaining information.
-From given document, extract the doctor name to whom the document is addressed to or who requested the report (first name and last name) and patients name (first name, last name). Also summarize the document, if the report has any significant/critical findings mention it as first thing in the summary then include recommendations based on the same. 
-You need to out the following json. No other output other than below json permitted.
+From given document, extract the doctor name to whom the document is addressed to or who requested the report (first name and last name) and patients name (first name, last name). Also summarize the document, ensure you mention necessary report values iu the summary. 
+You need to output the following json. No other output other than below json permitted.
 Note: Report is prepared and sent by another doctor and their name would also be mentioned in report, ignore that and use name of the requested doctor or to whom the report is addressed to.
 {{
   "is_document_medical_report": true/false // this represents if document is medical report or not, 
   "doctor_first_name": "" // doctors first name i.e who requested the report or to whom the report is address to,
   "report_date": "", // date when report was sent in MMM DD YYYY format ex: Aug 11th 2024,
-  report_type": "", // type of report i.e blood work, mri, ct scan, xray etc. if not able to find then mention unknown
- "doctor_last_name": "" // doctors last name,
+  "report_type": "", // type of report i.e blood work, mri, ct scan, xray etc. if not able to find then mention unknown
+  "doctor_last_name": "" // doctors last name,
   "patient_first_name": "" // doctors first name,
  "patient_last_name": "" // doctors second name,
  "critical_findings": "" // Medium to Critical findings from report if any, else mention no critical findings,
- "recommendations": // Recommendations or next steps if any
-"summary" : "" // summary of the document , 
+ "recommendations": // Recommendations or next steps if any provided in the document, else return N/A
+"summary" : "" // summary of the document as mentioned earlier. Dont mention who requested the document or the patient name in this, summarize only medical findings.
 "email_subject": "" // provide suitable subject based on summary (include patient name, report type and date (in MMM DD YYYY format ex: Aug 11th 2024)
 }}
-Document is {medical_report_data}
+Document is ```{medical_report_data}```
 """
 
 MATCH_NAME_PROMPT = """
