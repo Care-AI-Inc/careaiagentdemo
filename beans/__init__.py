@@ -3,13 +3,6 @@ from typing import List, Optional
 from pydantic import BaseModel, BaseConfig
 
 
-class Email(BaseModel):
-    subject: str
-    body: str
-    from_address: str
-    to_address: str
-    attachments_files: List[str]
-
 
 class MedicalReport(BaseModel):
     is_document_medical_report: bool
@@ -33,3 +26,19 @@ class EmailConfig(BaseModel):
 
 class Config(BaseModel):
     email_config: EmailConfig
+
+from enum import Enum
+
+class EmailStatus(Enum):
+    PENDING = "PENDING"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+
+
+class Email(BaseModel):
+    email_id: str
+    to_address: str
+    email_subject: str
+    email_content: str
+    attachments: List[str]
+    status: EmailStatus

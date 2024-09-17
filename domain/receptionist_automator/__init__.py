@@ -4,8 +4,9 @@ import logging
 import os
 import tempfile
 
-from beans import Config
+from beans import Config, EmailStatus
 from data_store import get_doctor_data
+from data_store.email import upsert_email
 from domain.document_processor import extract_from_document
 from domain.email import email_medical_report, format_medical_report
 from domain.report_extractor import extract_and_summarize_medical_report, normalize_and_find_matching_name_ids
@@ -84,8 +85,9 @@ def poll_and_process_message(config: Config):
                                     medical_report.doctor_first_name = doctor_info["first_name"]
                                     medical_report.doctor_last_name = doctor_info["last_name"]
                                     email_content = format_medical_report(medical_report)
-                                    email_medical_report(config.email_config, doctor_info["email"], medical_report.email_subject,
-                                                         email_content)
+                                    upsert_email(email_id, doctor_info["email"], medical_report.email_subject, email_content, ["one", "two"], EmailStatus.PENDING)
+                                    # email_medical_report(config.email_config, doctor_info["email"], medical_report.email_subject,
+                                    #                      email_content)
 
             # Mark the report_extractor as read
             mail.store(email_id, '+FLAGS', '\\Seen')
