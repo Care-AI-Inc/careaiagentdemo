@@ -1,0 +1,11 @@
+email:
+  imap_endpoint: imap.gmail.com
+  smtp_endpoint: smtp.gmail.com
+  smtp_port: 587
+  from_email_filter: hello@vengad.me
+  attachments_dir: attachments
+
+db:
+  dbname: careai
+  host: localhost
+  port: 5432

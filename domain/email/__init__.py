@@ -1,5 +1,6 @@
 import os
 import smtplib
+import traceback
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -50,7 +51,7 @@ def email_medical_report(email_config: beans.EmailConfig, to_address: str, subje
 
     # Attach the HTML content
     message.attach(MIMEText(html_content, 'html'))
-
+    print(email_user, email_password)
     # Send the email
     try:
         with smtplib.SMTP(email_config.smtp_endpoint, email_config.smtp_port) as server:
@@ -60,4 +61,5 @@ def email_medical_report(email_config: beans.EmailConfig, to_address: str, subje
         print('Email sent successfully!')
     except Exception as e:
         print(f'Failed to send email: {e}')
+        print(traceback.format_exc())
 

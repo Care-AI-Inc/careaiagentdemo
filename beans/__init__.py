@@ -23,9 +23,16 @@ class EmailConfig(BaseModel):
     smtp_port: int
 
     from_email_filter: str
+    attachments_dir: str
+
+class DBConfig(BaseModel):
+    host: str
+    port: int
+    dbname: str
 
 class Config(BaseModel):
     email_config: EmailConfig
+    db_config: DBConfig
 
 from enum import Enum
 
@@ -37,8 +44,8 @@ class EmailStatus(Enum):
 
 class Email(BaseModel):
     email_id: str
-    to_address: str
-    email_subject: str
-    email_content: str
-    attachments: List[str]
-    status: EmailStatus
+    to_address: Optional[str] = None
+    email_subject: Optional[str] = None
+    email_content: Optional[str] = None
+    attachments: Optional[List[str]] = None
+    status: Optional[EmailStatus] = None

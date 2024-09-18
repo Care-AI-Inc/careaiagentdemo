@@ -16,16 +16,26 @@ db_params = {
 }
 
 # Initialize the database connection
-try:
-    conn = psycopg2.connect(**db_params)
-    print("Database connection established")
-except Exception as error:
-    print(f"Error connecting to the database: {error}")
-    conn = None
+import psycopg2.pool
 
+_connection_pool: Optional[psycopg2.pool.SimpleConnectionPool] = None
+
+def get_connection():
+    global _connection_pool
+    if _connection_pool is None:
+        _connection_pool = psycopg2.pool.SimpleConnectionPool(1, 10, **db_params)
+    return _connection_pool.getconn()
+
+def release_connection(connection):
+    if not connection:
+        return
+    global _connection_pool
+    if _connection_pool:
+        _connection_pool.putconn(connection)
 
 # Function to insert data into the emails table
 def upsert_email(email_id, to_address, email_subject, email_content, attachments, status: EmailStatus):
+    conn = get_connection()
     cur = None
     try:
         cur = conn.cursor()
@@ -58,9 +68,39 @@ def upsert_email(email_id, to_address, email_subject, email_content, attachments
         # Close the cursor if it was initialized
         if cur is not None:
             cur.close()
+        release_connection(conn)
 
+def fetch_email_by_id(email_id: str) -> Optional[Email]:
+    conn = get_connection()
+    cur = None
+    try:
+        cur = conn.cursor()
+        # SQL query to fetch email by id
+        query = '''
+        SELECT email_id, to_address, email_subject, email_content, attachments, status 
+        FROM emails 
+        WHERE email_id = %s;
+        '''
+        cur.execute(query, (email_id,))
+        row = cur.fetchone()
+        if row:
+            return Email(
+                email_id=row[0],
+                to_address=row[1],
+                email_subject=row[2],
+                email_content=row[3],
+                attachments=row[4],
+                status=EmailStatus(row[5])
+            )
+    except Exception as error:
+        print(f"Error fetching email: {error}")
+    finally:
+        if cur is not None:
+            cur.close()
+        release_connection(conn)
 
 def fetch_pending_emails() -> List[Email]:
+    conn = get_connection()
     cur = None
     try:
         cur = conn.cursor()
@@ -99,8 +139,10 @@ def fetch_pending_emails() -> List[Email]:
     finally:
         if cur is not None:
             cur.close()
+        release_connection(conn)
 
 def update_email(email_id, to_address=None, email_subject=None, email_content=None, attachments=None, status=None):
+    conn = get_connection()
     if conn is None:
         print("No database connection available")
         return
@@ -130,7 +172,7 @@ def update_email(email_id, to_address=None, email_subject=None, email_content=No
             values.append(attachments)
 
         if status is not None:
-            update_fields.append("status = %s::email_status")
+            update_fields.append("status = %s")
             values.append(status.value)
 
         # Ensure there's something to update
@@ -152,9 +194,7 @@ def update_email(email_id, to_address=None, email_subject=None, email_content=No
 
         print("Email updated successfully")
 
-    except Exception as error:
-        print(f"Error updating email: {error}")
-
     finally:
         if cur is not None:
             cur.close()
+        release_connection(conn)
