@@ -45,10 +45,13 @@ class EmailStatus(Enum):
 
 class Email(BaseModel):
     email_id: str
-    to_address: Optional[str] = None
-    email_subject: Optional[str] = None
     email_content: Optional[str] = None
+    email_subject: Optional[str] = None
+    original_email_subject: Optional[str] = None
+    original_email_from_address: Optional[str] = None
+    original_email_text: Optional[str] = None
     attachments: Optional[List[str]] = None
+    to_address: Optional[str] = None
     status: Optional[EmailStatus] = None
 
 class EmailUpdate(BaseModel):

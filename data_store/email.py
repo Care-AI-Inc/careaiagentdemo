@@ -11,7 +11,7 @@ db_params = {
     'dbname': 'careai',
     'user': os.getenv("DB_USER"),
     'password': os.getenv("DB_PASSWORD"),
-    'host': 'db',  # or your database host
+    'host': 'localhost',  # or your database host
     'port': '5432'  # default PostgreSQL port
 }
 
@@ -34,7 +34,7 @@ def release_connection(connection):
         _connection_pool.putconn(connection)
 
 # Function to insert data into the emails table
-def upsert_email(email_id, to_address, email_subject, email_content, attachments, status: EmailStatus):
+def upsert_email(email: Email):
     conn = get_connection()
     cur = None
     try:
@@ -42,12 +42,16 @@ def upsert_email(email_id, to_address, email_subject, email_content, attachments
 
         # SQL query to insert data
         upsert_query = '''
-                INSERT INTO emails (email_id, email_content, email_subject, attachments, to_address, status, created_date)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO emails (
+                    email_id, email_content, email_subject, original_email_subject, original_email_from_address, original_email_text, attachments, to_address, status, created_date
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 ON CONFLICT (email_id) 
                 DO UPDATE SET 
                     email_content = EXCLUDED.email_content,
                     email_subject = EXCLUDED.email_subject,
+                    original_email_subject = EXCLUDED.original_email_subject,
+                    original_email_from_address = EXCLUDED.original_email_from_address,
+                    original_email_text = EXCLUDED.original_email_text,
                     attachments = EXCLUDED.attachments,
                     to_address = EXCLUDED.to_address,
                     status = EXCLUDED.status,
@@ -56,7 +60,8 @@ def upsert_email(email_id, to_address, email_subject, email_content, attachments
 
         # Execute the query with provided data
         cur.execute(upsert_query, (
-        email_id, email_content, email_subject, attachments, to_address, status.value, datetime.datetime.now()))
+            email.email_id, email.email_content, email.email_subject, email.original_email_subject, email.original_email_from_address, email.original_email_text, email.attachments, email.to_address, email.status.value, datetime.datetime.now()
+        ))
 
         # Commit the transaction
         conn.commit()
@@ -77,7 +82,7 @@ def fetch_email_by_id(email_id: str) -> Optional[Email]:
         cur = conn.cursor()
         # SQL query to fetch email by id
         query = '''
-        SELECT email_id, to_address, email_subject, email_content, attachments, status 
+        SELECT email_id, to_address, email_subject, email_content, original_email_subject, original_email_from_address, original_email_text, attachments, status 
         FROM emails 
         WHERE email_id = %s;
         '''
@@ -89,8 +94,11 @@ def fetch_email_by_id(email_id: str) -> Optional[Email]:
                 to_address=row[1],
                 email_subject=row[2],
                 email_content=row[3],
-                attachments=row[4],
-                status=EmailStatus(row[5])
+                original_email_subject=row[4],
+                original_email_from_address=row[5],
+                original_email_text=row[6],
+                attachments=row[7],
+                status=EmailStatus(row[8])
             )
     except Exception as error:
         print(f"Error fetching email: {error}")
@@ -106,7 +114,7 @@ def fetch_emails(status: Optional[EmailStatus] = None) -> List[Email]:
         cur = conn.cursor()
         # SQL query to fetch pending emails sorted by created_date
         query = '''
-        SELECT email_id, to_address, email_subject, email_content, attachments, status 
+        SELECT email_id, to_address, email_subject, email_content, original_email_subject, original_email_from_address, original_email_text, attachments, status 
         FROM emails 
         '''
         if status is not None:
@@ -126,8 +134,11 @@ def fetch_emails(status: Optional[EmailStatus] = None) -> List[Email]:
                 to_address=row[1],
                 email_subject=row[2],
                 email_content=row[3],
-                attachments=row[4],  # Assuming this is stored as a list in PostgreSQL
-                status=EmailStatus(row[5])
+                original_email_subject=row[4],
+                original_email_from_address=row[5],
+                original_email_text=row[6],
+                attachments=row[7],
+                status=EmailStatus(row[8])
             )
             for row in rows
         ]
