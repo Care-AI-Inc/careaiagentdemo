@@ -24,6 +24,7 @@ class EmailConfig(BaseModel):
 
     from_email_filter: str
     attachments_dir: str
+    doctor_email_address: str
 
 class DBConfig(BaseModel):
     host: str
@@ -44,6 +45,13 @@ class EmailStatus(Enum):
 
 class Email(BaseModel):
     email_id: str
+    to_address: Optional[str] = None
+    email_subject: Optional[str] = None
+    email_content: Optional[str] = None
+    attachments: Optional[List[str]] = None
+    status: Optional[EmailStatus] = None
+
+class EmailUpdate(BaseModel):
     to_address: Optional[str] = None
     email_subject: Optional[str] = None
     email_content: Optional[str] = None

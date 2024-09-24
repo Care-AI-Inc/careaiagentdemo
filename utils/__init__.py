@@ -18,7 +18,8 @@ def fetch_config() -> Config:
         smtp_endpoint=config_data['email']['smtp_endpoint'],
         smtp_port=config_data['email']['smtp_port'],
         from_email_filter=config_data['email']['from_email_filter'],
-        attachments_dir = config_data['email']['attachments_dir']
+        attachments_dir=config_data['email']['attachments_dir'],
+        doctor_email_address=config_data['email']['doctor_email_address']
     )
     db_config = DBConfig(
         host=config_data['db']['host'],

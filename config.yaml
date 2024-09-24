@@ -4,8 +4,9 @@ email:
   smtp_port: 587
   from_email_filter: hello@vengad.me
   attachments_dir: attachments
+  doctor_email_address: fantastic.next@gmail.com
 
 db:
   dbname: careai
-  host: localhost
+  host: db
   port: 5432

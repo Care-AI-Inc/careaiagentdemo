@@ -11,7 +11,7 @@ db_params = {
     'dbname': 'careai',
     'user': os.getenv("DB_USER"),
     'password': os.getenv("DB_PASSWORD"),
-    'host': 'localhost',  # or your database host
+    'host': 'db',  # or your database host
     'port': '5432'  # default PostgreSQL port
 }
 
@@ -99,7 +99,7 @@ def fetch_email_by_id(email_id: str) -> Optional[Email]:
             cur.close()
         release_connection(conn)
 
-def fetch_pending_emails() -> List[Email]:
+def fetch_emails(status: Optional[EmailStatus] = None) -> List[Email]:
     conn = get_connection()
     cur = None
     try:
@@ -108,17 +108,19 @@ def fetch_pending_emails() -> List[Email]:
         query = '''
         SELECT email_id, to_address, email_subject, email_content, attachments, status 
         FROM emails 
-        WHERE status = %s 
-        ORDER BY created_date;
         '''
+        if status is not None:
+            query += ' WHERE status = %s '
 
-        cur.execute(query, (EmailStatus.PENDING.value,))
+        query += ' ORDER BY created_date DESC;'
+
+        cur.execute(query, (status.value,) if status is not None else ())
 
         # Fetch all results
         rows = cur.fetchall()
 
         # Convert each row into an Email instance
-        pending_emails = [
+        emails = [
             Email(
                 email_id=row[0],
                 to_address=row[1],
@@ -130,10 +132,10 @@ def fetch_pending_emails() -> List[Email]:
             for row in rows
         ]
 
-        return pending_emails
+        return emails
 
     except Exception as error:
-        print(f"Error fetching pending emails: {error}")
+        print(f"Error fetching emails: {error}")
         return []
 
     finally:

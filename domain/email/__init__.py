@@ -1,8 +1,10 @@
 import os
 import smtplib
 import traceback
+from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from typing import Optional
 
 import beans
 
@@ -35,7 +37,7 @@ def format_medical_report( report: beans.MedicalReport) -> str:
     html_content = MEDICAL_REPORT_BODY.format(**report.model_dump())
     return html_content
 
-def email_medical_report(email_config: beans.EmailConfig, to_address: str, subject: str, body: str):
+def email_medical_report(email_config: beans.EmailConfig, to_address: str, subject: str, body: str, attachment: Optional[str]):
     # Email details
     to_email = to_address
     subject =subject
@@ -51,7 +53,16 @@ def email_medical_report(email_config: beans.EmailConfig, to_address: str, subje
 
     # Attach the HTML content
     message.attach(MIMEText(html_content, 'html'))
-    print(email_user, email_password)
+
+    # Attach the file if provided
+    if attachment:
+        with open(attachment, 'rb') as f:
+            file_data = f.read()
+            file_name = os.path.basename(attachment)
+        attachment = MIMEApplication(file_data, Name=file_name)
+        attachment['Content-Disposition'] = f'attachment; filename="{file_name}"'
+        message.attach(attachment)
+
     # Send the email
     try:
         with smtplib.SMTP(email_config.smtp_endpoint, email_config.smtp_port) as server:

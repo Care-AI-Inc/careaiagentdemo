@@ -1,10 +1,11 @@
 import argparse
+from typing import Optional
 
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from beans import Email, EmailStatus
-from data_store.email import fetch_pending_emails, update_email, fetch_email_by_id
+from beans import Email, EmailStatus, EmailUpdate
+from data_store.email import fetch_emails, update_email, fetch_email_by_id
 from domain.email import email_medical_report
 from utils import fetch_config
 from fastapi.responses import FileResponse
@@ -31,17 +32,14 @@ async def root():
 
 
 @app.get("/emails")
-async def get_emails():
-    return fetch_pending_emails()
+async def get_emails(status: Optional[EmailStatus] = None):
+    return fetch_emails(status)
 
 
 @app.patch("/emails/{email_id}")
-async def patch_email(email_id: str, to_address: str = None, email_subject: str = None, email_content: str = None):
-    update_email(email_id, to_address, email_subject, email_content, None, None)
-    email = Email(email_id=email_id, to_address=to_address, email_subject=email_subject,
-                  email_content=email_content, attachments=[], status=None)
+async def patch_email(email_id: str, email: EmailUpdate):
+    update_email(email_id, email.to_address, email.email_subject, email.email_content, email.attachments, email.status)
     return email
-
 
 @app.post("/emails/{email_id}/accept")
 async def send_email(email_id: str):
@@ -51,7 +49,8 @@ async def send_email(email_id: str):
             email_config=config.email_config,
             to_address=email.to_address,
             subject=email.email_subject,
-            body=email.email_content
+            body=email.email_content,
+            attachment=email.attachments[0] if email.attachments else None,
         )
         update_email(email_id, status=EmailStatus.APPROVED)
 

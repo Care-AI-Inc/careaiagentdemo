@@ -14,6 +14,8 @@ parser = LlamaParse(
     # this improved the accuracy of the parsing as it uses multi-modal feature of openai to process the document
     gpt4o_api_key=OPEN_API_KEY,
     gpt4o_mode=True,
+    invalidate_cache=True,
+    do_not_cache=True,
 )
 
 
@@ -25,6 +27,6 @@ def extract_from_document(document_file_path: str) -> Optional[str]:
     """
     documents = parser.load_data(document_file_path)
     if documents:
-        return documents[0].text
+        return "\n".join([doc.text for doc in documents])
     else:
         return None

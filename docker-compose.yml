@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  fastapi:
+    build:
+      context: .
+      dockerfile: Dockerfile.fastapi
+    container_name: fastapi_service
+    volumes:
+      - .:/app
+      - attachments:/app/attachments
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - LAMA_PARSE_API_KEY=${LAMA_PARSE_API_KEY}
+      - OPEN_API_KEY=${OPEN_API_KEY}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - CONFIG_FILE=${CONFIG_FILE}
+    command: uvicorn api_main:app --host 0.0.0.0 --port 8000
+
+  background:
+    build:
+      context: .
+      dockerfile: Dockerfile.background
+    container_name: background_service
+    volumes:
+      - .:/app
+      - attachments:/app/attachments
+    command: python main.py
+    environment:
+      - LAMA_PARSE_API_KEY=${LAMA_PARSE_API_KEY}
+      - OPEN_API_KEY=${OPEN_API_KEY}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - CONFIG_FILE=${CONFIG_FILE}
+
+  db:
+    image: postgres:15-alpine
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: careai
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
+  attachments:

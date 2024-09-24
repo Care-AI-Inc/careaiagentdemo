@@ -2,14 +2,13 @@ import email
 import imaplib
 import logging
 import os
-import tempfile
 
 from beans import Config, EmailStatus
 from data_store import get_doctor_data
 from data_store.email import upsert_email
 from domain.document_processor import extract_from_document
-from domain.email import email_medical_report, format_medical_report
-from domain.report_extractor import extract_and_summarize_medical_report, normalize_and_find_matching_name_ids
+from domain.email import format_medical_report
+from domain.report_extractor import extract_and_summarize_medical_report
 
 # Email account credentials
 email_user = os.getenv('EMAIL_USER')
@@ -93,25 +92,25 @@ def poll_and_process_message(config: Config):
                                 if not medical_report.is_document_medical_report:
                                     logging.warn("Looks like report does not contain medical information, skipping it")
                                 doctor_data = get_doctor_data()
-                                doctor_ids = normalize_and_find_matching_name_ids(get_doctor_data(),
-                                                                                  medical_report.doctor_first_name,
-                                                                                  medical_report.doctor_last_name)
-                                if not doctor_ids:
-                                    logging.info(
-                                        f"Unable to find doctor from database for extracted doctor {medical_report.doctor_first_name} {medical_report.doctor_last_name}")
-                                    break
-                                if len(doctor_ids) > 1:
-                                    logging.info(
-                                        f"Multiple doctor found for the report, not sure to whom to sent the report {doctor_ids}")
-                                    break
-                                logging.info("Identified doctor id %s for doctor name %s %s", doctor_ids[0],
-                                             medical_report.doctor_first_name, medical_report.doctor_last_name)
+                                # doctor_ids = normalize_and_find_matching_name_ids(get_doctor_data(),
+                                #                                                   medical_report.doctor_first_name,
+                                #                                                   medical_report.doctor_last_name)
+                                # if not doctor_ids:
+                                #     logging.info(
+                                #         f"Unable to find doctor from database for extracted doctor {medical_report.doctor_first_name} {medical_report.doctor_last_name}")
+                                #     break
+                                # if len(doctor_ids) > 1:
+                                #     logging.info(
+                                #         f"Multiple doctor found for the report, not sure to whom to sent the report {doctor_ids}")
+                                #     break
+                                # logging.info("Identified doctor id %s for doctor name %s %s", doctor_ids[0],
+                                #              medical_report.doctor_first_name, medical_report.doctor_last_name)
                                 # overriding doctor name to match with DB to maintain consistency
-                                doctor_info = doctor_data[doctor_ids[0]]
-                                medical_report.doctor_first_name = doctor_info["first_name"]
-                                medical_report.doctor_last_name = doctor_info["last_name"]
+                                # doctor_info = doctor_data[doctor_ids[0]]
+                                # medical_report.doctor_first_name = doctor_info["first_name"]
+                                # medical_report.doctor_last_name = doctor_info["last_name"]
                                 email_content = format_medical_report(medical_report)
-                                upsert_email(str(int(email_id)), doctor_info["email"], medical_report.email_subject, email_content, [attachment_filepath], EmailStatus.PENDING)
+                                upsert_email(str(int(email_id)), config.email_config.doctor_email_address, medical_report.email_subject, email_content, [attachment_filepath], EmailStatus.PENDING)
                                 # email_medical_report(config.email_config, doctor_info["email"], medical_report.email_subject,
                                 #                      email_content)
 

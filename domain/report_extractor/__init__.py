@@ -75,6 +75,9 @@ def normalize_and_find_matching_name_ids(name_with_id_data: dict, first_name: st
             {"role": "system", "content": MATCH_NAME_PROMPT.format(data=json.dumps(name_with_id_data), first_name=first_name, last_name=last_name)},
         ])
     if response.choices:
-        message = json.loads(_trim_json_markdown(response.choices[0].message.content))
-        return message["name_ids"]
+        try:
+            message = json.loads(_trim_json_markdown(response.choices[0].message.content))
+            return message["name_ids"]
+        except Exception as e:
+            return []
     return []
