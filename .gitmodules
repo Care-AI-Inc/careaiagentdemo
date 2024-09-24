@@ -1,0 +1,3 @@
+[submodule "webapp"]
+	path = webapp
+	url = git@github.com:vengad-tech/carei_web_assistant_demo.git

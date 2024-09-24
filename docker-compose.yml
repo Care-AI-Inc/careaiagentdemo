@@ -54,6 +54,16 @@ services:
     ports:
       - "5432:5432"
 
+  webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile.webapp
+    container_name: webapp_service
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=${REACT_APP_API_URL}
+
 volumes:
   postgres_data:
   attachments:
