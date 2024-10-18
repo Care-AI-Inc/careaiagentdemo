@@ -1,0 +1,12 @@
+email:
+  imap_endpoint: imap.gmail.com
+  smtp_endpoint: smtp.gmail.com
+  smtp_port: 587
+  from_email_filter: melvinchen5@gmail.com
+  attachments_dir: attachments
+  doctor_email_address: tech@careaihq.com
+
+db:
+  dbname: careai
+  host: db
+  port: 5432
