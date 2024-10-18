@@ -9,6 +9,7 @@ services:
     volumes:
       - .:/app
       - attachments:/app/attachments
+      - cache:/app/.cache
     ports:
       - "8000:8000"
     depends_on:
@@ -53,17 +54,28 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
-
-  webapp:
+  roundcube:
     build:
       context: .
-      dockerfile: Dockerfile.webapp
-    container_name: webapp_service
+      dockerfile: Dockerfile.roundcube
+    container_name: roundcube_service
     ports:
-      - "3000:3000"
+      - "9002:80"
+    depends_on:
+      - db
     environment:
-      - REACT_APP_API_URL=${REACT_APP_API_URL}
+      - ROUNDCUBE_DB_HOST=db
+      - ROUNDCUBE_DB_USER=${DB_USER}
+      - ROUNDCUBE_DB_PASSWORD=${DB_PASSWORD}
+      - ROUNDCUBE_DB_NAME=roundcube
+      - ROUNDCUBEMAIL_SKIN=elastic
+      - ROUNDCUBEMAIL_DEFAULT_HOST=ssl://imap.gmail.com
+      - ROUNDCUBEMAIL_DEFAULT_PORT=993
+      - ROUNDCUBEMAIL_SMTP_SERVER=ssl://smtp.gmail.com
+      - ROUNDCUBEMAIL_SMTP_PORT=465
+
 
 volumes:
   postgres_data:
   attachments:
+  cache:

@@ -6,6 +6,10 @@ from openai import OpenAI
 
 from beans import MedicalReport
 
+from diskcache import Cache
+
+cache = Cache("./.cache/extract_and_summarize_medical_report")
+
 OPEN_API_KEY = os.getenv("OPEN_API_KEY")
 client = OpenAI(api_key=OPEN_API_KEY)
 
@@ -18,7 +22,7 @@ Note: Report is prepared and sent by another doctor and their name would also be
   "is_document_medical_report": true/false // this represents if document is medical report or not, 
   "doctor_first_name": "" // doctors first name i.e who requested the report or to whom the report is address to,
   "report_date": "", // date when report was sent in MMM DD YYYY format ex: Aug 11th 2024,
-  "report_type": "", // type of report i.e blood work, mri, ct scan, xray etc. if not able to find then mention unknown
+  "report_type": "", // type of report i.e classify it as "pathology" or "radiology", if not both just use "unknown" as type
   "doctor_last_name": "" // doctors last name,
   "patient_first_name": "" // doctors first name,
  "patient_last_name": "" // doctors second name,
@@ -52,21 +56,35 @@ def _trim_json_markdown(json_str):
     # Return the original string if no markdown markers are found
     return json_str
 
-def extract_and_summarize_medical_report(medical_report_data: str) -> Optional[MedicalReport]:
+
+def extract_and_summarize_medical_report(attachment_filepath: str, medical_report_data: str) -> Optional[MedicalReport]:
     """
     Extracts medical report from given medical report data.
-    :param medical_report_data:
-    :return:
+    :param attachment_filepath: Path to the attachment file
+    :param medical_report_data: Medical report data
+    :return: MedicalReport object or None
     """
+    # Check if result is in cache
+    cached_result = cache.get(attachment_filepath)
+    if cached_result is not None:
+        return cached_result
+
+    # If not in cache, process the report
     response = client.chat.completions.create(
         model="gpt-4o",
         messages=[
             {"role": "system", "content": EXTRACT_EMAIL_PROMPT.format(medical_report_data=medical_report_data)},
         ])
+    
+    result = None
     if response.choices:
         message = json.loads(_trim_json_markdown(response.choices[0].message.content))
-        return MedicalReport(**message)
-    return None
+        result = MedicalReport(**message)
+
+    # Store the result in cache
+    cache.set(attachment_filepath, result)
+
+    return result
 
 def normalize_and_find_matching_name_ids(name_with_id_data: dict, first_name: str, last_name: str) -> list[str]:
     response = client.chat.completions.create(

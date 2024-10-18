@@ -2,7 +2,9 @@ import os
 from typing import Optional
 
 from llama_parse import LlamaParse
+from diskcache import Cache
 
+cache = Cache("./.cache/extract_from_document")
 LAMA_PARSE_API_KEY = os.getenv('LAMA_PARSE_API_KEY')
 OPEN_API_KEY = os.getenv("OPEN_API_KEY")
 parser = LlamaParse(
@@ -19,6 +21,7 @@ parser = LlamaParse(
 )
 
 
+@cache.memoize()
 def extract_from_document(document_file_path: str) -> Optional[str]:
     """
     Extracts text from document provided.

@@ -1,0 +1,5 @@
+<?php
+
+$config['reply_suggestion_api_url'] = 'https://external-server.com/api/suggest-reply';
+
+?>

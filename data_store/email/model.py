@@ -25,11 +25,16 @@ class EmailModel(Base):
     to_address = Column(String)
     status = Column(Enum(EmailModelStatus))
     created_date = Column(DateTime, default=datetime.datetime.utcnow)
+    report_type = Column(String)
+    doctor_first_name = Column(String)
+    doctor_last_name = Column(String)
+    patient_first_name = Column(String)
+    patient_last_name = Column(String)
 
 # Database connection setup
-DATABASE_URL = f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@localhost:5432/careai"
+DATABASE_URL = f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@db:5432/careai"
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Create tables
-#Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine)

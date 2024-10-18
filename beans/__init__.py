@@ -54,6 +54,12 @@ class Email(BaseModel):
     to_address: Optional[str] = None
     status: Optional[EmailStatus] = None
 
+    doctor_first_name: Optional[str] = ""
+    doctor_last_name: Optional[str] = ""
+    patient_first_name: Optional[str] = ""
+    patient_last_name: Optional[str] = ""
+    report_type: Optional[str] = ""
+
 class EmailUpdate(BaseModel):
     to_address: Optional[str] = None
     email_subject: Optional[str] = None

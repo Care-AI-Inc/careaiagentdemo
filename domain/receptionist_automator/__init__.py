@@ -1,7 +1,9 @@
+import datetime
 import email
 import imaplib
 import logging
 import os
+from email.utils import parsedate_to_datetime
 
 from beans import Config, EmailStatus, Email
 from data_store import get_doctor_data
@@ -63,14 +65,60 @@ def poll_and_process_message(config: Config):
     email_ids = messages[0].split()
 
     # Process each report_extractor
+    # Global variable to store the last processed time
+    global last_processed_time
+    if 'last_processed_time' not in globals():
+        last_processed_time = datetime.datetime.now()
+
+    def get_last_processed_time():
+        global last_processed_time
+        # Ensure last_processed_time is timezone-aware
+        if last_processed_time.tzinfo is None:
+            last_processed_time = last_processed_time.replace(tzinfo=datetime.timezone.utc)
+        return last_processed_time
+
+    def save_last_processed_time(timestamp):
+        global last_processed_time
+        last_processed_time = timestamp
+
+    # Get the timestamp of the last processed email
+    current_last_processed_time = get_last_processed_time()
+
+    # Search for emails newer than the last processed email
+    date_string = current_last_processed_time.strftime("%d-%b-%Y")
+    search_criteria = f'(SINCE "{date_string}")'
+    
+    status, messages = mail.search(None, search_criteria)
+
+    if not messages[0]:
+        logging.info("No new emails found.")
+        return
+
+    email_ids = messages[0].split()
+
     for email_id in email_ids:
-        # Fetch the report_extractor by ID
+        _, uid_data = mail.fetch(email_id, '(UID)')
+        uid = uid_data[0].decode().split()[-1].rstrip(')')  # Extract the UID from the response
+
+        logging.info(f'Processing email ID: {email_id.decode()}, uid: {uid}')
+        # Fetch the email by ID
         status, msg_data = mail.fetch(email_id, '(RFC822)')
 
-        # Parse the report_extractor content
+        # Parse the email content
         for response_part in msg_data:
             if isinstance(response_part, tuple):
                 msg = email.message_from_bytes(response_part[1])
+                email_date = parsedate_to_datetime(msg['Date'])
+                
+                # Ensure both datetimes are timezone-aware before comparison
+                current_last_processed_time = get_last_processed_time()
+                if email_date.tzinfo is None:
+                    email_date = email_date.replace(tzinfo=datetime.timezone.utc)
+                
+                # Now compare the timezone-aware datetimes
+                if email_date <= current_last_processed_time:
+                    continue
+
                 original_email_subject = msg['subject']
                 original_email_from_address = msg['from']
                 logging.info(f'From: {original_email_from_address}')
@@ -78,58 +126,46 @@ def poll_and_process_message(config: Config):
 
                 original_email_text = ""
                 for part in msg.walk():
-                    # Check if the part is an attachment
                     if part.get_content_maintype() == 'text':
                         original_email_text += part.get_payload()
                     elif part.get_content_disposition() == 'attachment':
                         filename = part.get_filename()
                         if filename:
                             attachment_filepath = os.path.join(config.email_config.attachments_dir, filename)
-                            # Save the attachment
                             with open(attachment_filepath, 'wb') as f:
                                 f.write(part.get_payload(decode=True))
                             logging.info(f'Saved attachment: {attachment_filepath}')
                             extract_content = extract_from_document(attachment_filepath)
                             print(extract_content)
                             if extract_content:
-                                medical_report = extract_and_summarize_medical_report(extract_content)
+                                medical_report = extract_and_summarize_medical_report(attachment_filepath, extract_content)
                                 if not medical_report.is_document_medical_report:
                                     logging.warn("Looks like report does not contain medical information, skipping it")
-                                # doctor_data = get_doctor_data()
-                                # doctor_ids = normalize_and_find_matching_name_ids(get_doctor_data(),
-                                #                                                   medical_report.doctor_first_name,
-                                #                                                   medical_report.doctor_last_name)
-                                # if not doctor_ids:
-                                #     logging.info(
-                                #         f"Unable to find doctor from database for extracted doctor {medical_report.doctor_first_name} {medical_report.doctor_last_name}")
-                                #     break
-                                # if len(doctor_ids) > 1:
-                                #     logging.info(
-                                #         f"Multiple doctor found for the report, not sure to whom to sent the report {doctor_ids}")
-                                #     break
-                                # logging.info("Identified doctor id %s for doctor name %s %s", doctor_ids[0],
-                                #              medical_report.doctor_first_name, medical_report.doctor_last_name)
-                                # overriding doctor name to match with DB to maintain consistency
-                                # doctor_info = doctor_data[doctor_ids[0]]
-                                # medical_report.doctor_first_name = doctor_info["first_name"]
-                                # medical_report.doctor_last_name = doctor_info["last_name"]
-                                email_content = format_medical_report(medical_report)
-                                email_data = Email(
-                                    email_id=str(int(email_id)),
-                                    to_address=config.email_config.doctor_email_address,
-                                    email_subject=medical_report.email_subject,
-                                    email_content=email_content,
-                                    attachments=[attachment_filepath],
-                                    status=EmailStatus.PENDING,
-                                    original_email_text=original_email_text,
-                                    original_email_subject=original_email_subject,
-                                    original_email_from_address=original_email_from_address
-                                )
-                                upsert_email(email_data)
-                                # email_medical_report(config.email_config, doctor_info["email"], medical_report.email_subject,
-                                #                      email_content)
-        # Mark the report_extractor as read
-        mail.store(email_id, '+FLAGS', '\\Seen')
+                                else:
+                                    email_content = format_medical_report(medical_report)
+                                    email_data = Email(
+                                        email_id=str(int(uid)),
+                                        to_address=config.email_config.doctor_email_address,
+                                        email_subject=medical_report.email_subject,
+                                        email_content=email_content,
+                                        attachments=[attachment_filepath],
+                                        status=EmailStatus.PENDING,
+                                        original_email_text=original_email_text,
+                                        original_email_subject=original_email_subject,
+                                        original_email_from_address=original_email_from_address,
+                                        doctor_first_name=medical_report.doctor_first_name,
+                                        doctor_last_name=medical_report.doctor_last_name,
+                                        patient_first_name=medical_report.patient_first_name,
+                                        patient_last_name=medical_report.patient_last_name,
+                                        report_type=medical_report.report_type
+                                    )
+                                    upsert_email(email_data)
 
+                # Update the last processed time
+                if email_date > current_last_processed_time:
+                    current_last_processed_time = email_date
+
+    # Save the last processed time for the next iteration
+    save_last_processed_time(current_last_processed_time)
     # Logout
     mail.logout()

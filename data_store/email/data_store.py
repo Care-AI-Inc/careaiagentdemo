@@ -19,7 +19,12 @@ def upsert_email(email: Email):
                 attachments=email.attachments,
                 to_address=email.to_address,
                 status=EmailModelStatus(email.status.value),
-                created_date=datetime.datetime.now()
+                created_date=datetime.datetime.now(),
+                doctor_first_name=email.doctor_first_name,
+                doctor_last_name=email.doctor_last_name,
+                patient_first_name=email.patient_first_name,
+                patient_last_name=email.patient_last_name,
+                report_type=email.report_type
             ))
             session.commit()
             print("Email inserted successfully")
@@ -41,7 +46,12 @@ def fetch_email_by_id(email_id: str) -> Optional[Email]:
                     original_email_from_address=email_model.original_email_from_address,
                     original_email_text=email_model.original_email_text,
                     attachments=email_model.attachments,
-                    status=EmailStatus(email_model.status.value)
+                    status=EmailStatus(email_model.status.value),
+                    doctor_first_name=email_model.doctor_first_name,
+                    doctor_last_name=email_model.doctor_last_name,
+                    patient_first_name=email_model.patient_first_name,
+                    patient_last_name=email_model.patient_last_name,
+                    report_type=email_model.report_type
                 )
     except Exception as error:
         print(f"Error fetching email: {error}")
