@@ -1,9 +1,10 @@
-from sqlalchemy import create_engine, Column, String, DateTime, Enum, LargeBinary, ARRAY
+import datetime
+import os
+from enum import Enum as PyEnum
+
+from sqlalchemy import ARRAY, Column, DateTime, Enum, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-import os
-import datetime
-from enum import Enum as PyEnum
 
 Base = declarative_base()
 

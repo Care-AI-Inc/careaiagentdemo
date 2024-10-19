@@ -1,8 +1,8 @@
 import os
 from typing import Optional
 
-from llama_parse import LlamaParse
 from diskcache import Cache
+from llama_parse import LlamaParse
 
 cache = Cache("./.cache/extract_from_document")
 LAMA_PARSE_API_KEY = os.getenv("LAMA_PARSE_API_KEY")

@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from pydantic import BaseModel, BaseConfig
+from pydantic import BaseModel
 
 
 class MedicalReport(BaseModel):

@@ -1,8 +1,10 @@
+import logging
+import uuid
+
 from fastapi import APIRouter, HTTPException, Response
 from pydantic import BaseModel
-from careai.lib.clients.vapi import create_vapi_call
 
-import logging
+from careai.lib.clients.vapi import create_vapi_call
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -26,9 +28,12 @@ class DebtCallRequest(BaseModel):
 async def debt_call(request: DebtCallRequest):
 
     # Construct the message for the call
-    message = f"""start by saying, Hello am I speaking with {request.name}? If they are not the one speaking then ask them whether you can speak with {request.name}
-    and wait till they hand over the call to {request.name} else if they are not available thensay you will call back later to speak with {request.name}.
-    Inform that you an AI agent and you are calling regarding an unpaid debt from {request.clinic_name}. Tell the amount owed is {request.debt_amount} dollars, 
+    message = f"""start by saying, Hello am I speaking with {request.name}? If they are not the one speaking then
+    ask them whether you can speak with {request.name}
+    and wait till they hand over the call to {request.name} else if they are not available 
+    then say you will call back later to speak with {request.name}.
+    Inform that you an AI agent and you are calling regarding an unpaid debt from {request.clinic_name}. 
+    Tell the amount owed is {request.debt_amount} dollars, 
     and say that due date is {request.due_date}. 
     The debt is for {request.debt_reason}. 
     Inform that that not paying the debt will result in penality and details of penality is {request.penalty_detail}. 
@@ -49,3 +54,21 @@ async def debt_call(request: DebtCallRequest):
         return Response(status_code=200)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+class CallRequest(BaseModel):
+    patient_name: str
+    call_reason: str
+    patient_phone_number: str
+
+
+@router.post("/initiate_call")
+async def initiate_call(call_request: CallRequest):
+    logger.info(f"Received call request for patient: {call_request.patient_name}")
+    logger.info(f"Call reason: {call_request.call_reason}")
+    logger.info(f"Patient phone number: {call_request.patient_phone_number}")
+    # Implement the logic to initiate the call here
+    # For example, you might use a third-party service or API
+    # Simulate a successful call initiation
+    call_id = str(uuid.uuid4())
+    return {"message": "Call initiated successfully", "call_id": call_id}

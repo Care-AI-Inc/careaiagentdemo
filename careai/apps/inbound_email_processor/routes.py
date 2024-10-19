@@ -1,12 +1,13 @@
 from typing import Optional
+
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
-from starlette.responses import JSONResponse
 
-from .beans import EmailStatus, EmailUpdate, Email
-from .data_store.email import fetch_emails, update_email, fetch_email_by_id
-from .domain.email import email_medical_report
 from careai.utils import fetch_config
+
+from .beans import Email, EmailStatus, EmailUpdate
+from .data_store.email import fetch_email_by_id, fetch_emails, update_email
+from .domain.email import email_medical_report
 
 router = APIRouter()
 config = fetch_config()

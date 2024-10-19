@@ -1,7 +1,7 @@
-from typing import Optional, List
 import datetime
+from typing import List, Optional
 
-from careai.apps.inbound_email_processor.beans import EmailStatus, Email
+from careai.apps.inbound_email_processor.beans import Email, EmailStatus
 from careai.apps.inbound_email_processor.data_store.email.model import (
     EmailModel,
     EmailModelStatus,

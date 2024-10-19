@@ -1,7 +1,8 @@
 import os
 
 import yaml
-from careai.apps.inbound_email_processor.beans import EmailConfig, Config, DBConfig
+
+from careai.apps.inbound_email_processor.beans import Config, DBConfig, EmailConfig
 
 
 def fetch_config() -> Config:
