@@ -24,7 +24,7 @@ class Email {
 }
 
 function fetch_email($email_id) {
-    $url = 'http://fastapi:8000/emails/' . $email_id;
+    $url = 'http://fastapi:8000/inbound-emails/' . $email_id;
     rcube::write_log('reply_suggestion fetch_email status url', $url);
     $response = json_decode(file_get_contents($url), true);
     if (is_null($response) || !array_key_exists('email_id', $response)) {

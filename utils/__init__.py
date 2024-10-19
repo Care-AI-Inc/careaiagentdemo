@@ -1,7 +1,7 @@
 import os
 
 import yaml
-from beans import EmailConfig, Config, DBConfig
+from apps.inbound_email_processor.beans import EmailConfig, Config, DBConfig
 
 
 def fetch_config() -> Config:

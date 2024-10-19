@@ -6,7 +6,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Optional
 
-import beans
+import apps.inbound_email_processor.beans as beans
 
 email_user = os.getenv('EMAIL_USER')
 email_password = os.getenv('EMAIL_PASSWORD')

@@ -6,8 +6,8 @@ import time
 import nest_asyncio
 import yaml
 
-from beans import EmailConfig, Config
-from domain.receptionist_automator import poll_and_process_message
+from apps.inbound_email_processor.beans import EmailConfig, Config
+from apps.inbound_email_processor.domain.receptionist_automator import poll_and_process_message
 from utils import fetch_config
 
 SLEEP_BETWEEN_MESSAGE_POLLING = 10

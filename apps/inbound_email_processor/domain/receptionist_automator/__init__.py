@@ -5,12 +5,12 @@ import logging
 import os
 from email.utils import parsedate_to_datetime
 
-from beans import Config, EmailStatus, Email
-from data_store import get_doctor_data
-from data_store.email import upsert_email
-from domain.document_processor import extract_from_document
-from domain.email import format_medical_report
-from domain.report_extractor import extract_and_summarize_medical_report
+from apps.inbound_email_processor.beans import Config, EmailStatus, Email
+from apps.inbound_email_processor.data_store import get_doctor_data
+from apps.inbound_email_processor.data_store.email import upsert_email
+from apps.inbound_email_processor.domain.document_processor import extract_from_document
+from apps.inbound_email_processor.domain.email import format_medical_report
+from apps.inbound_email_processor.domain.report_extractor import extract_and_summarize_medical_report
 
 # Email account credentials
 email_user = os.getenv('EMAIL_USER')
@@ -56,13 +56,6 @@ def poll_and_process_message(config: Config):
     mail.select('inbox')
     # Search for all unread emails
     # status, messages = mail.search(None, f'(UNSEEN FROM "{config.email_config.from_email_filter}")')
-    status, messages = mail.search(None, '(UNSEEN)')
-
-    if not messages:
-        return
-
-    # Convert the result to a list of report_extractor IDs
-    email_ids = messages[0].split()
 
     # Process each report_extractor
     # Global variable to store the last processed time
@@ -100,7 +93,6 @@ def poll_and_process_message(config: Config):
         _, uid_data = mail.fetch(email_id, '(UID)')
         uid = uid_data[0].decode().split()[-1].rstrip(')')  # Extract the UID from the response
 
-        logging.info(f'Processing email ID: {email_id.decode()}, uid: {uid}')
         # Fetch the email by ID
         status, msg_data = mail.fetch(email_id, '(RFC822)')
 
@@ -118,6 +110,7 @@ def poll_and_process_message(config: Config):
                 # Now compare the timezone-aware datetimes
                 if email_date <= current_last_processed_time:
                     continue
+                logging.info(f'Processing email ID: {email_id.decode()}, uid: {uid}')
 
                 original_email_subject = msg['subject']
                 original_email_from_address = msg['from']
