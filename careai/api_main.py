@@ -5,13 +5,13 @@ from fastapi.responses import FileResponse
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 
-from apps.inbound_email_processor.beans import EmailStatus, EmailUpdate, Email
-from apps.inbound_email_processor.data_store.email import fetch_emails, update_email, fetch_email_by_id
-from apps.inbound_email_processor.domain.email import email_medical_report
-from utils import fetch_config
+from careai.apps.inbound_email_processor.beans import EmailStatus, EmailUpdate, Email
+from careai.apps.inbound_email_processor.data_store.email import fetch_emails, update_email, fetch_email_by_id
+from careai.apps.inbound_email_processor.domain.email import email_medical_report
+from careai.utils import fetch_config
 
-from apps.inbound_email_processor.routes import router as inbound_email_router
-from apps.outbound_call.routes import router as outbound_call_router
+from careai.apps.inbound_email_processor.routes import router as inbound_email_router
+from careai.apps.outbound_call.routes import router as outbound_call_router
 
 app = FastAPI()
 

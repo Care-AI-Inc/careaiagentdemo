@@ -5,12 +5,12 @@ import logging
 import os
 from email.utils import parsedate_to_datetime
 
-from apps.inbound_email_processor.beans import Config, EmailStatus, Email
-from apps.inbound_email_processor.data_store import get_doctor_data
-from apps.inbound_email_processor.data_store.email import upsert_email
-from apps.inbound_email_processor.domain.document_processor import extract_from_document
-from apps.inbound_email_processor.domain.email import format_medical_report
-from apps.inbound_email_processor.domain.report_extractor import extract_and_summarize_medical_report
+from careai.apps.inbound_email_processor.beans import Config, EmailStatus, Email
+from careai.apps.inbound_email_processor.data_store import get_doctor_data
+from careai.apps.inbound_email_processor.data_store.email import upsert_email
+from careai.apps.inbound_email_processor.domain.document_processor import extract_from_document
+from careai.apps.inbound_email_processor.domain.email import format_medical_report
+from careai.apps.inbound_email_processor.domain.report_extractor import extract_and_summarize_medical_report
 
 # Email account credentials
 email_user = os.getenv('EMAIL_USER')

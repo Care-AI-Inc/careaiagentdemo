@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Response
 from pydantic import BaseModel
-from lib.clients.vapi import create_vapi_call
+from careai.lib.clients.vapi import create_vapi_call
 
 import logging
 

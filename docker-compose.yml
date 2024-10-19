@@ -23,7 +23,6 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - CONFIG_FILE=${CONFIG_FILE}
       - VAPI_AUTH_TOKEN=${VAPI_AUTH_TOKEN}
-    command: uvicorn api_main:app --host 0.0.0.0 --port 8000
 
   background:
     build:
@@ -33,7 +32,6 @@ services:
     volumes:
       - .:/app
       - attachments:/app/attachments
-    command: python main.py
     environment:
       - LAMA_PARSE_API_KEY=${LAMA_PARSE_API_KEY}
       - OPEN_API_KEY=${OPEN_API_KEY}

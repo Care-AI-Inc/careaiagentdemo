@@ -4,7 +4,7 @@ from typing import Optional
 
 from openai import OpenAI
 
-from apps.inbound_email_processor.beans import MedicalReport
+from careai.apps.inbound_email_processor.beans import MedicalReport
 from diskcache import Cache
 
 cache = Cache("./.cache/extract_and_summarize_medical_report")

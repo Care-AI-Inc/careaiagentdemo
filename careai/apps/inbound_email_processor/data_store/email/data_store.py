@@ -1,8 +1,8 @@
 from typing import Optional, List
 import datetime
 
-from apps.inbound_email_processor.beans import EmailStatus, Email
-from apps.inbound_email_processor.data_store.email.model import EmailModel, EmailModelStatus, SessionLocal
+from careai.apps.inbound_email_processor.beans import EmailStatus, Email
+from careai.apps.inbound_email_processor.data_store.email.model import EmailModel, EmailModelStatus, SessionLocal
 
 
 # Function to insert data into the emails table
