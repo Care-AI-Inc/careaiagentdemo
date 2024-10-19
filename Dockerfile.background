@@ -1,11 +1,29 @@
 # Dockerfile.background
-FROM python:3.10-slim-buster
+FROM python:3.12-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install -r requirements.txt
+# Install poetry
+RUN pip install poetry
 
-COPY . .
+# Copy only pyproject.toml and poetry.lock (if it exists)
+COPY pyproject.toml poetry.lock* ./
 
-CMD ["python", "main.py"]
+# Install dependencies
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-interaction --no-ansi
+
+# Copy the careai folder
+COPY careai ./careai
+
+# Copy config folder with all yamls
+COPY config ./config
+
+# Set environment variable for CONFIG_FILE
+ENV CONFIG_FILE=/app/config/careai_config.yaml
+
+# Set the working directory to the careai folder
+WORKDIR /app/careai
+
+# Command to run the application
+CMD ["poetry", "run", "python", "main.py"]

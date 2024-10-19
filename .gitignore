@@ -4,3 +4,5 @@
 __pycache__
 attachments/*.pdf
 .cache
+careai/__pycache__
+careai/.cache

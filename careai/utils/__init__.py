@@ -7,6 +7,7 @@ from apps.inbound_email_processor.beans import EmailConfig, Config, DBConfig
 def fetch_config() -> Config:
     """Fetches the config file and returns the config object"""
     config_file = os.getenv('CONFIG_FILE')
+    
     if not config_file:
         raise ValueError("CONFIG_FILE env variable is not set")
 
