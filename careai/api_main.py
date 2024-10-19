@@ -6,7 +6,11 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 
 from careai.apps.inbound_email_processor.beans import EmailStatus, EmailUpdate, Email
-from careai.apps.inbound_email_processor.data_store.email import fetch_emails, update_email, fetch_email_by_id
+from careai.apps.inbound_email_processor.data_store.email import (
+    fetch_emails,
+    update_email,
+    fetch_email_by_id,
+)
 from careai.apps.inbound_email_processor.domain.email import email_medical_report
 from careai.utils import fetch_config
 
@@ -30,16 +34,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
 
+
 # Include the inbound email processor router with a prefix
-app.include_router(inbound_email_router, prefix="/inbound-emails", tags=["inbound-emails"])
+app.include_router(
+    inbound_email_router, prefix="/inbound-emails", tags=["inbound-emails"]
+)
 
 # Include the outbound call router with a prefix
-app.include_router(outbound_call_router, prefix="/outbound_call", tags=["outbound-call"])
+app.include_router(
+    outbound_call_router, prefix="/outbound_call", tags=["outbound-call"]
+)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

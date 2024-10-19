@@ -47,16 +47,19 @@ You answer be only in json format as mentioned below.
 ```
 """
 
+
 def _trim_json_markdown(json_str):
     # Check if the string starts with '```json' and ends with '```'
-    if json_str.startswith('```json') and json_str.endswith('```'):
+    if json_str.startswith("```json") and json_str.endswith("```"):
         # Remove the markdown markers and any surrounding whitespace
         return json_str[7:-3].strip()
     # Return the original string if no markdown markers are found
     return json_str
 
 
-def extract_and_summarize_medical_report(attachment_filepath: str, medical_report_data: str) -> Optional[MedicalReport]:
+def extract_and_summarize_medical_report(
+    attachment_filepath: str, medical_report_data: str
+) -> Optional[MedicalReport]:
     """
     Extracts medical report from given medical report data.
     :param attachment_filepath: Path to the attachment file
@@ -72,9 +75,15 @@ def extract_and_summarize_medical_report(attachment_filepath: str, medical_repor
     response = client.chat.completions.create(
         model="gpt-4o",
         messages=[
-            {"role": "system", "content": EXTRACT_EMAIL_PROMPT.format(medical_report_data=medical_report_data)},
-        ])
-    
+            {
+                "role": "system",
+                "content": EXTRACT_EMAIL_PROMPT.format(
+                    medical_report_data=medical_report_data
+                ),
+            },
+        ],
+    )
+
     result = None
     if response.choices:
         message = json.loads(_trim_json_markdown(response.choices[0].message.content))
@@ -85,15 +94,28 @@ def extract_and_summarize_medical_report(attachment_filepath: str, medical_repor
 
     return result
 
-def normalize_and_find_matching_name_ids(name_with_id_data: dict, first_name: str, last_name: str) -> list[str]:
+
+def normalize_and_find_matching_name_ids(
+    name_with_id_data: dict, first_name: str, last_name: str
+) -> list[str]:
     response = client.chat.completions.create(
         model="gpt-4o",
         messages=[
-            {"role": "system", "content": MATCH_NAME_PROMPT.format(data=json.dumps(name_with_id_data), first_name=first_name, last_name=last_name)},
-        ])
+            {
+                "role": "system",
+                "content": MATCH_NAME_PROMPT.format(
+                    data=json.dumps(name_with_id_data),
+                    first_name=first_name,
+                    last_name=last_name,
+                ),
+            },
+        ],
+    )
     if response.choices:
         try:
-            message = json.loads(_trim_json_markdown(response.choices[0].message.content))
+            message = json.loads(
+                _trim_json_markdown(response.choices[0].message.content)
+            )
             return message["name_ids"]
         except Exception as e:
             return []

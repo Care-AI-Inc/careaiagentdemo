@@ -7,13 +7,15 @@ from enum import Enum as PyEnum
 
 Base = declarative_base()
 
+
 class EmailModelStatus(PyEnum):
     PENDING = "PENDING"
     APPROVED = "APPROVED"
     REJECTED = "REJECTED"
 
+
 class EmailModel(Base):
-    __tablename__ = 'emails'
+    __tablename__ = "emails"
 
     email_id = Column(String, primary_key=True)
     email_content = Column(String)
@@ -31,8 +33,11 @@ class EmailModel(Base):
     patient_first_name = Column(String)
     patient_last_name = Column(String)
 
+
 # Database connection setup
-DATABASE_URL = f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@db:5432/careai"
+DATABASE_URL = (
+    f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@db:5432/careai"
+)
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
+
 class DebtCallRequest(BaseModel):
     name: str
     debt_amount: str
@@ -20,9 +21,10 @@ class DebtCallRequest(BaseModel):
     penalty_detail: str
     mobile_number: str
 
+
 @router.post("/debt_call")
 async def debt_call(request: DebtCallRequest):
-    
+
     # Construct the message for the call
     message = f"""start by saying, Hello am I speaking with {request.name}? If they are not the one speaking then ask them whether you can speak with {request.name}
     and wait till they hand over the call to {request.name} else if they are not available thensay you will call back later to speak with {request.name}.
@@ -35,13 +37,15 @@ async def debt_call(request: DebtCallRequest):
     if they want wire transfer, we can message the instructions as well. 
     If the person wants more time or want to discuss a waiver tell that you will arrange for an agent to call you back. 
     Thank you for your attention to this matter."""
-    
+
     # Log the system message
     logger.info(f"System message for debt call to {request.name}:")
     logger.info(message)
     # Make the call using the VAPI client
     try:
-        create_vapi_call(request.mobile_number, message, f"Hello am I speaking with {request.name}?")
+        create_vapi_call(
+            request.mobile_number, message, f"Hello am I speaking with {request.name}?"
+        )
         return Response(status_code=200)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

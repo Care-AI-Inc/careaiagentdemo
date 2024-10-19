@@ -1,9 +1,10 @@
 import os
 import requests
 
+
 def create_vapi_call(customer_number, system_message, first_prompt):
     # Your Vapi API Authorization token
-    auth_token = os.environ.get('VAPI_AUTH_TOKEN')
+    auth_token = os.environ.get("VAPI_AUTH_TOKEN")
     # The Phone Number ID from the dashboard
     phone_number_id = "63aa98b9-1c7a-4cf5-ab35-0b845d7cc287"
 
@@ -31,7 +32,9 @@ def create_vapi_call(customer_number, system_message, first_prompt):
     }
 
     # Make the POST request to Vapi to create the phone call
-    response = requests.post("https://api.vapi.ai/call/phone", headers=headers, json=data)
+    response = requests.post(
+        "https://api.vapi.ai/call/phone", headers=headers, json=data
+    )
 
     # Check if the request was successful and return the response
     if response.status_code == 201:

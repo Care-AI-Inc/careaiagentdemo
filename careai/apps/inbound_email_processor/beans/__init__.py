@@ -3,7 +3,6 @@ from typing import List, Optional
 from pydantic import BaseModel, BaseConfig
 
 
-
 class MedicalReport(BaseModel):
     is_document_medical_report: bool
     doctor_first_name: Optional[str] = ""
@@ -17,6 +16,7 @@ class MedicalReport(BaseModel):
     report_date: Optional[str] = ""
     report_type: Optional[str] = ""
 
+
 class EmailConfig(BaseModel):
     imap_endpoint: str
     smtp_endpoint: str
@@ -26,16 +26,20 @@ class EmailConfig(BaseModel):
     attachments_dir: str
     doctor_email_address: str
 
+
 class DBConfig(BaseModel):
     host: str
     port: int
     dbname: str
 
+
 class Config(BaseModel):
     email_config: EmailConfig
     db_config: DBConfig
 
+
 from enum import Enum
+
 
 class EmailStatus(Enum):
     PENDING = "PENDING"
@@ -59,6 +63,7 @@ class Email(BaseModel):
     patient_first_name: Optional[str] = ""
     patient_last_name: Optional[str] = ""
     report_type: Optional[str] = ""
+
 
 class EmailUpdate(BaseModel):
     to_address: Optional[str] = None

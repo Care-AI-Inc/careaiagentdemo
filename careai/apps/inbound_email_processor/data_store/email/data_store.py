@@ -2,30 +2,36 @@ from typing import Optional, List
 import datetime
 
 from careai.apps.inbound_email_processor.beans import EmailStatus, Email
-from careai.apps.inbound_email_processor.data_store.email.model import EmailModel, EmailModelStatus, SessionLocal
+from careai.apps.inbound_email_processor.data_store.email.model import (
+    EmailModel,
+    EmailModelStatus,
+    SessionLocal,
+)
 
 
 # Function to insert data into the emails table
 def upsert_email(email: Email):
     try:
         with SessionLocal() as session:
-            session.merge(EmailModel(
-                email_id=email.email_id,
-                email_content=email.email_content,
-                email_subject=email.email_subject,
-                original_email_subject=email.original_email_subject,
-                original_email_from_address=email.original_email_from_address,
-                original_email_text=email.original_email_text,
-                attachments=email.attachments,
-                to_address=email.to_address,
-                status=EmailModelStatus(email.status.value),
-                created_date=datetime.datetime.now(),
-                doctor_first_name=email.doctor_first_name,
-                doctor_last_name=email.doctor_last_name,
-                patient_first_name=email.patient_first_name,
-                patient_last_name=email.patient_last_name,
-                report_type=email.report_type
-            ))
+            session.merge(
+                EmailModel(
+                    email_id=email.email_id,
+                    email_content=email.email_content,
+                    email_subject=email.email_subject,
+                    original_email_subject=email.original_email_subject,
+                    original_email_from_address=email.original_email_from_address,
+                    original_email_text=email.original_email_text,
+                    attachments=email.attachments,
+                    to_address=email.to_address,
+                    status=EmailModelStatus(email.status.value),
+                    created_date=datetime.datetime.now(),
+                    doctor_first_name=email.doctor_first_name,
+                    doctor_last_name=email.doctor_last_name,
+                    patient_first_name=email.patient_first_name,
+                    patient_last_name=email.patient_last_name,
+                    report_type=email.report_type,
+                )
+            )
             session.commit()
             print("Email inserted successfully")
     except Exception as error:
@@ -51,13 +57,15 @@ def fetch_email_by_id(email_id: str) -> Optional[Email]:
                     doctor_last_name=email_model.doctor_last_name,
                     patient_first_name=email_model.patient_first_name,
                     patient_last_name=email_model.patient_last_name,
-                    report_type=email_model.report_type
+                    report_type=email_model.report_type,
                 )
     except Exception as error:
         print(f"Error fetching email: {error}")
 
 
-def fetch_emails(status: Optional[EmailStatus] = None, offset: int = 0, limit: int = 20) -> List[EmailModel]:
+def fetch_emails(
+    status: Optional[EmailStatus] = None, offset: int = 0, limit: int = 20
+) -> List[EmailModel]:
     try:
         with SessionLocal() as session:
             query = session.query(EmailModel)
@@ -68,13 +76,21 @@ def fetch_emails(status: Optional[EmailStatus] = None, offset: int = 0, limit: i
             query = query.offset(offset).limit(limit)
             print("Query is:")
             print(query.statement.compile(compile_kwargs={"literal_binds": True}))
-            print("query is "+str(query))
+            print("query is " + str(query))
             return query.all()
     except Exception as error:
         print(f"Error fetching emails: {error}")
         return []
 
-def update_email(email_id, to_address=None, email_subject=None, email_content=None, attachments=None, status=None):
+
+def update_email(
+    email_id,
+    to_address=None,
+    email_subject=None,
+    email_content=None,
+    attachments=None,
+    status=None,
+):
     try:
         with SessionLocal() as session:
             email_model = session.query(EmailModel).filter_by(email_id=email_id).first()

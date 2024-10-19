@@ -5,7 +5,7 @@ from llama_parse import LlamaParse
 from diskcache import Cache
 
 cache = Cache("./.cache/extract_from_document")
-LAMA_PARSE_API_KEY = os.getenv('LAMA_PARSE_API_KEY')
+LAMA_PARSE_API_KEY = os.getenv("LAMA_PARSE_API_KEY")
 OPEN_API_KEY = os.getenv("OPEN_API_KEY")
 parser = LlamaParse(
     api_key=LAMA_PARSE_API_KEY,  # can also be set in your env as LLAMA_CLOUD_API_KEY

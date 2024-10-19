@@ -7,15 +7,17 @@ import nest_asyncio
 import yaml
 
 from careai.apps.inbound_email_processor.beans import EmailConfig, Config
-from careai.apps.inbound_email_processor.domain.receptionist_automator import poll_and_process_message
+from careai.apps.inbound_email_processor.domain.receptionist_automator import (
+    poll_and_process_message,
+)
 from careai.utils import fetch_config
 
 SLEEP_BETWEEN_MESSAGE_POLLING = 10
 
 logging.basicConfig(
     level=logging.DEBUG,  # Set the logging level
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',  # Set the log message format
-    stream=sys.stdout  # Set the output stream to stdout
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",  # Set the log message format
+    stream=sys.stdout,  # Set the output stream to stdout
 )
 
 nest_asyncio.apply()
