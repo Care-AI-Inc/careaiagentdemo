@@ -11,6 +11,7 @@ from apps.inbound_email_processor.domain.email import email_medical_report
 from utils import fetch_config
 
 from apps.inbound_email_processor.routes import router as inbound_email_router
+from apps.outbound_call.routes import router as outbound_call_router
 
 app = FastAPI()
 
@@ -35,3 +36,10 @@ async def root():
 
 # Include the inbound email processor router with a prefix
 app.include_router(inbound_email_router, prefix="/inbound-emails", tags=["inbound-emails"])
+
+# Include the outbound call router with a prefix
+app.include_router(outbound_call_router, prefix="/outbound_call", tags=["outbound-call"])
+
+if __name__ == '__main__':
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
