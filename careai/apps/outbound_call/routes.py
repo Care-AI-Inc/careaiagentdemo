@@ -1,9 +1,10 @@
 import logging
 import uuid
+from datetime import datetime
 
 from fastapi import APIRouter, HTTPException, Response
 from pydantic import BaseModel
-from datetime import datetime
+
 from careai.lib.clients.vapi import create_vapi_call
 
 # Configure logging
@@ -26,11 +27,10 @@ class DebtCallRequest(BaseModel):
 
 @router.post("/debt_call")
 async def debt_call(request: DebtCallRequest):
-    
 
     # Get today's date as a string in the format "Month Day, Year"
     today_date = datetime.now().strftime("%B %d, %Y")
-    
+
     # Construct the message for the call
     message = f"""You are an AI agent who is responsible for collecting debt from user. Remember that today's date is f{today_date}.
     start by saying, "Hello am I speaking with f{request.name}?" If they are not the one speaking then
@@ -46,7 +46,8 @@ async def debt_call(request: DebtCallRequest):
     If they would like to make a payment, then say that we can send a link via message to your registered mobile number shortly. 
     if they want wire transfer, we can message the instructions as well. 
     If the person wants more time or want to discuss a waiver tell that you will arrange for an agent to call you back. 
-also if they are only delayed by a day or two from due date say that we can provide them with one time waiver and if they are interested send them link and tell they need to pay it within a day to use the waiver.
+    also if they are only delayed by a day or two from due date say that we can provide them with one time waiver and 
+    if they are interested send them link and tell they need to pay it within a day to use the waiver.
     At the end Thank them for their attention to this matter."""
 
     # Log the system message

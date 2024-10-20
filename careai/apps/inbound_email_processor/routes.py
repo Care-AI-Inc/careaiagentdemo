@@ -6,7 +6,7 @@ from fastapi.responses import FileResponse
 from careai.utils import fetch_config
 
 from .beans import Email, EmailStatus, EmailUpdate
-from .data_store.email import fetch_email_by_id, fetch_emails, update_email
+from .data_store.email.data_store import fetch_email_by_id, fetch_emails, update_email
 from .domain.email import email_medical_report
 
 router = APIRouter()
