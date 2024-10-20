@@ -6,7 +6,7 @@ import os
 from email.utils import parsedate_to_datetime
 
 from careai.apps.inbound_email_processor.beans import Config, Email, EmailStatus
-from careai.apps.inbound_email_processor.data_store.email import upsert_email
+from careai.apps.inbound_email_processor.data_store.email.data_store import upsert_email
 from careai.apps.inbound_email_processor.domain.document_processor import (
     extract_from_document,
 )
