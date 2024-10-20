@@ -3,7 +3,7 @@ import uuid
 
 from fastapi import APIRouter, HTTPException, Response
 from pydantic import BaseModel
-
+from datetime import datetime
 from careai.lib.clients.vapi import create_vapi_call
 
 # Configure logging
@@ -26,22 +26,28 @@ class DebtCallRequest(BaseModel):
 
 @router.post("/debt_call")
 async def debt_call(request: DebtCallRequest):
+    
 
+    # Get today's date as a string in the format "Month Day, Year"
+    today_date = datetime.now().strftime("%B %d, %Y")
+    
     # Construct the message for the call
-    message = f"""start by saying, Hello am I speaking with {request.name}? If they are not the one speaking then
-    ask them whether you can speak with {request.name}
-    and wait till they hand over the call to {request.name} else if they are not available 
-    then say you will call back later to speak with {request.name}.
-    Inform that you an AI agent and you are calling regarding an unpaid debt from {request.clinic_name}. 
-    Tell the amount owed is {request.debt_amount} dollars, 
-    and say that due date is {request.due_date}. 
-    The debt is for {request.debt_reason}. 
-    Inform that that not paying the debt will result in penality and details of penality is {request.penalty_detail}. 
-    Ask if they want to make payment now? If yes then ask if they want to make a payment via link or wire transfer.
+    message = f"""You are an AI agent who is responsible for collecting debt from user. Remember that today's date is f{today_date}.
+    start by saying, "Hello am I speaking with f{request.name}?" If they are not the one speaking then
+    ask them whether you can speak with f{request.name}
+    and wait till they hand over the call to f{request.name} else if they are not available 
+    then say you will call back later to speak with f{request.name}.
+    Inform that you are Clara, an AI agent and you are calling regarding an unpaid debt from f{request.clinic_name}. 
+    Tell the amount owed is f{request.debt_amount}  dollars, 
+    and say that due date is f{request.due_date}. use below details to compute penalty and provide it to them as well.
+    The debt is for f{request.debt_reason}. 
+    Inform that that not paying the debt will result in penality and details of penality is f{request.penalty_detail}. 
+    Ask if they want to make payment now. If yes then ask if they want to make a payment via link or wire transfer.
     If they would like to make a payment, then say that we can send a link via message to your registered mobile number shortly. 
     if they want wire transfer, we can message the instructions as well. 
     If the person wants more time or want to discuss a waiver tell that you will arrange for an agent to call you back. 
-    Thank you for your attention to this matter."""
+also if they are only delayed by a day or two from due date say that we can provide them with one time waiver and if they are interested send them link and tell they need to pay it within a day to use the waiver.
+    At the end Thank them for their attention to this matter."""
 
     # Log the system message
     logger.info(f"System message for debt call to {request.name}:")
